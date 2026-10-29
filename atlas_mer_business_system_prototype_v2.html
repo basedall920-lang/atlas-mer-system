@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ATLAS × MER 業務管理システム | 試作品</title>
+<style>
+:root{--navy:#173d70;--blue:#2f67ad;--pale:#edf4fc;--bg:#f4f6fa;--ink:#172235;--muted:#667085;--line:#dce3ed;--green:#16845b;--red:#c64747;--gold:#b7791f}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(120deg,#122f58,#2863a8);color:white;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{font-size:20px;font-weight:800;letter-spacing:.4px}.brand small{display:block;font-size:11px;font-weight:500;opacity:.8;letter-spacing:1px;margin-top:3px}
+.header-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.badge{background:#ffffff20;border:1px solid #ffffff40;border-radius:999px;padding:7px 11px;font-size:12px}
+.app{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:calc(100vh - 72px)}
+aside{background:#fff;border-right:1px solid var(--line);padding:16px 12px}
+.navbtn{width:100%;border:0;background:transparent;text-align:left;padding:12px 13px;margin:3px 0;border-radius:9px;font-size:14px;color:#40516a;cursor:pointer}
+.navbtn.active,.navbtn:hover{background:var(--pale);color:var(--navy);font-weight:700}.navbtn span{display:inline-block;width:25px}
+main{padding:22px;min-width:0;max-width:1500px;width:100%;margin:0 auto}
+.topline{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+h1{font-size:25px;margin:0 0 5px} .sub{font-size:13px;color:var(--muted)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,select,button,textarea{font:inherit}input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:9px 10px;background:#fff;min-width:0;color:var(--ink)}button{cursor:pointer}
+.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:9px 12px;color:var(--ink);font-weight:650}.btn.primary{background:var(--blue);border-color:var(--blue);color:white}.btn.success{background:var(--green);border-color:var(--green);color:white}.btn.danger{color:var(--red);border-color:#efcaca}.btn.small{padding:6px 9px;font-size:12px}
+.grid{display:grid;gap:14px}.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px}.card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:16px;box-shadow:0 2px 5px #203a5c08;min-width:0}.stat-label{color:var(--muted);font-size:12px;font-weight:650}.stat-value{font-size:26px;font-weight:800;margin:9px 0 4px;letter-spacing:-.5px}.stat-foot{font-size:12px;color:var(--muted)}.two-col{grid-template-columns:1.1fr .9fr}
+.card h2{font-size:16px;margin:0 0 14px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:9px}table{border-collapse:collapse;width:100%;font-size:13px;white-space:nowrap}th,td{padding:10px 11px;border-bottom:1px solid #e9edf3;text-align:left}th{background:#f7f9fc;color:#506078;font-size:11px;letter-spacing:.2px}tr:last-child td{border-bottom:0}.num{text-align:right;font-variant-numeric:tabular-nums}.pill{display:inline-block;padding:4px 8px;border-radius:99px;background:#eef2f7;color:#475569;font-size:11px;font-weight:700}.pill.on{background:#e0f6eb;color:#11734c}.pill.off{background:#f1f3f6;color:#667085}.pill.pending{background:#fff3d8;color:#8a5b00}
+.formgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#526176;font-weight:700}.field input,.field select{width:100%;font-size:14px}.form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.hidden{display:none!important}.notice{background:#fff8e7;border:1px solid #f2d9a4;border-radius:10px;padding:12px 14px;font-size:12px;color:#78521a;line-height:1.6;margin-bottom:16px}
+.mini{font-size:12px;color:var(--muted);line-height:1.6}.quick-actions{display:flex;gap:8px;flex-wrap:wrap}.empty{padding:24px;text-align:center;color:var(--muted);font-size:13px}
+.progress{height:8px;background:#e8edf5;border-radius:99px;overflow:hidden;margin-top:7px}.progress>div{height:100%;background:var(--blue);width:0}
+footer{text-align:center;color:#8490a2;font-size:11px;padding:18px}
+@media(max-width:900px){.app{grid-template-columns:1fr}aside{display:flex;gap:5px;overflow:auto;padding:8px;border-right:0;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}.navbtn{white-space:nowrap;width:auto;margin:0;padding:10px}.navbtn span{width:auto;margin-right:5px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.two-col{grid-template-columns:1fr}main{padding:15px}}
+@media(max-width:560px){header{padding:14px}.brand{font-size:17px}main{padding:12px}h1{font-size:22px}.stats{gap:9px}.card{padding:13px}.stat-value{font-size:22px}.formgrid{grid-template-columns:1fr 1fr}.formgrid .field:last-child{grid-column:auto}.controls>*{flex:1}.header-right{width:100%}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">ATLAS × MER <small>WORKFORCE & SALES MANAGEMENT</small></div>
+  <div class="header-right"><span class="badge">プロトタイプ v0.2</span><span class="badge" id="todayBadge"></span></div>
+</header>
+<div class="app">
+<aside>
+<button class="navbtn active" data-page="dashboard"><span>▦</span> ダッシュボード</button>
+<button class="navbtn" data-page="attendance"><span>◷</span> 出勤・退勤</button>
+<button class="navbtn" data-page="sales"><span>↗</span> 売上入力</button>
+<button class="navbtn" data-page="staff"><span>♙</span> スタッフ管理</button>
+<button class="navbtn" data-page="rates"><span>￥</span> 単価設定</button>
+<button class="navbtn" data-page="rewards"><span>▤</span> 報酬・集計</button>
+<button class="navbtn" data-page="data"><span>⇅</span> データ連携</button>
+</aside>
+<main>
+<div class="notice"><b>試作品について：</b>この画面は操作確認用です。データはこのブラウザ内に保存され、複数端末では共有されません。ログイン認証・会社ごとのアクセス制御・Googleスプレッドシートとの自動連携は未実装です。実際のスタッフ情報や機密情報はまだ入力しないでください。</div>
+
+<section id="page-dashboard">
+<div class="topline"><div><h1>ダッシュボード</h1><div class="sub">会社別の稼働・売上をまとめて確認</div></div><div class="controls"><select id="dashCompany" aria-label="会社フィルター"><option value="all">全会社</option></select><input type="month" id="dashMonth"></div></div>
+<div class="grid stats">
+<div class="card"><div class="stat-label">登録スタッフ</div><div class="stat-value" id="statStaff">0</div><div class="stat-foot">選択した会社</div></div>
+<div class="card"><div class="stat-label">今月の稼働日数</div><div class="stat-value" id="statDays">0</div><div class="stat-foot">スタッフ別の出勤記録数</div></div>
+<div class="card"><div class="stat-label">売上合計（概算）</div><div class="stat-value" id="statSales">¥0</div><div class="stat-foot">入力済み実績の合計</div></div>
+<div class="card"><div class="stat-label">粗利・報酬計算（概算）</div><div class="stat-value" id="statGross">¥0</div><div class="stat-foot">設定済み単価による概算</div></div>
+</div>
+<div class="grid two-col">
+<div class="card"><div class="section-head"><h2>会社別の売上</h2><span class="pill">今月</span></div><div id="companySummary"></div></div>
+<div class="card"><div class="section-head"><h2>最近の出勤記録</h2><button class="btn small" onclick="go('attendance')">出勤管理へ</button></div><div id="recentAttendance"></div></div>
+</div>
+<div class="card" style="margin-top:14px"><div class="section-head"><h2>最近の売上入力</h2><button class="btn small" onclick="go('sales')">売上入力へ</button></div><div id="recentSales"></div></div>
+</section>
+
+<section id="page-attendance" class="hidden">
+<div class="topline"><div><h1>出勤・退勤</h1><div class="sub">スタッフを選んで出勤・退勤を記録</div></div><div class="controls"><input type="date" id="attDate"></div></div>
+<div class="card"><h2>打刻</h2><div class="formgrid">
+<label class="field">会社<select id="attCompany"></select></label>
+<label class="field">スタッフ<select id="attStaff"></select></label>
+<label class="field">メモ（任意）<input id="attMemo" placeholder="例：通常稼働"></label>
+</div><div class="form-actions"><button class="btn primary" onclick="clock('in')">出勤する</button><button class="btn success" onclick="clock('out')">退勤する</button></div><p class="mini">※この試作品では、同じスタッフ・同じ日付の出勤記録を1件として扱います。</p></div>
+<div class="card" style="margin-top:14px"><div class="section-head"><h2>出勤記録</h2><div class="controls"><select id="attFilterCompany"><option value="all">全会社</option></select><input type="month" id="attFilterMonth"></div></div><div id="attendanceTable"></div></div>
+</section>
+
+<section id="page-sales" class="hidden">
+<div class="topline"><div><h1>売上入力</h1><div class="sub">契約種類ごとの件数・単価から金額を計算</div></div><div class="controls"><input type="month" id="salesFilterMonth"></div></div>
+<div class="card"><h2>売上実績を追加</h2><div class="formgrid">
+<label class="field">会社<select id="salesCompany" onchange="refreshSalesStaff()"></select></label>
+<label class="field">スタッフ<select id="salesStaff"></select></label>
+<label class="field">日付<input type="date" id="salesDate"></label>
+<label class="field">販売先・案件<input id="salesVendor" placeholder="例：販売店A"></label>
+<label class="field">契約種類<select id="salesType"></select></label>
+<label class="field">件数<input type="number" id="salesCount" min="0" step="1" value="1"></label>
+<label class="field">単価（円）<input type="number" id="salesUnit" min="0" step="1" value="0"></label>
+<label class="field">メモ<input id="salesMemo" placeholder="任意"></label>
+<label class="field">計算金額（自動）<input id="salesAmount" readonly value="¥0"></label>
+</div><div class="form-actions"><button class="btn primary" onclick="addSale()">売上を登録</button><button class="btn" onclick="applyRate()">設定単価を反映</button></div><p class="mini">会社・スタッフ・販売先ごとに単価設定できます。登録後の金額は入力時点の単価で保存されます。</p></div>
+<div class="card" style="margin-top:14px"><div class="section-head"><h2>売上履歴</h2><div class="quick-actions"><button class="btn small" onclick="exportCSV('sales')">売上CSVを書き出す</button></div></div><div id="salesTable"></div></div>
+</section>
+
+<section id="page-staff" class="hidden">
+<div class="topline"><div><h1>スタッフ管理</h1><div class="sub">会社・役割・日当・目標を管理</div></div></div>
+<div class="card"><h2>スタッフを登録</h2><div class="formgrid">
+<label class="field">氏名<input id="staffName" placeholder="例：山田 太郎"></label>
+<label class="field">所属会社<select id="staffCompany"></select></label>
+<label class="field">権限<select id="staffRole"><option value="staff">スタッフ</option><option value="company_admin">会社管理者</option><option value="super_admin">最高管理者</option></select></label>
+<label class="field">日当（円）<input type="number" id="staffWage" min="0" value="12000"></label>
+<label class="field">月間売上目標（円）<input type="number" id="staffTarget" min="0" value="500000"></label>
+<label class="field">スタッフID（任意）<input id="staffCode" placeholder="例：AT-001"></label>
+</div><div class="form-actions"><button class="btn primary" onclick="addStaff()">スタッフを登録</button></div></div>
+<div class="card" style="margin-top:14px"><div class="section-head"><h2>登録スタッフ一覧</h2><input id="staffSearch" placeholder="氏名で検索" oninput="renderStaff()"></div><div id="staffTable"></div></div>
+</section>
+
+<section id="page-rates" class="hidden">
+<div class="topline"><div><h1>単価設定</h1><div class="sub">会社・スタッフ・販売先ごとの単価を登録</div></div></div>
+<div class="card"><h2>単価ルールを追加</h2><div class="formgrid">
+<label class="field">会社<select id="rateCompany"></select></label>
+<label class="field">スタッフ<select id="rateStaff"><option value="*">全スタッフ（会社共通）</option></select></label>
+<label class="field">販売先<input id="rateVendor" placeholder="空欄なら全販売先"></label>
+<label class="field">契約種類<select id="rateType"></select></label>
+<label class="field">単価（円）<input type="number" id="rateAmount" min="0" step="1" value="0"></label>
+<label class="field">適用開始日<input type="date" id="rateStart"></label>
+</div><div class="form-actions"><button class="btn primary" onclick="addRate()">単価ルールを保存</button><button class="btn" onclick="loadSampleRates()">サンプル単価を登録</button></div><p class="mini">単価の優先順位：スタッフ＋販売先 → スタッフ → 販売先 → 会社共通。サンプル単価はスクリーンショットで確認できた一部の金額を仮登録します。</p></div>
+<div class="card" style="margin-top:14px"><div class="section-head"><h2>単価ルール一覧</h2><button class="btn small" onclick="exportCSV('rates')">単価CSVを書き出す</button></div><div id="ratesTable"></div></div>
+</section>
+
+<section id="page-rewards" class="hidden">
+<div class="topline"><div><h1>報酬・月次集計</h1><div class="sub">日当と売上実績の集計（概算）</div></div><div class="controls"><select id="rewardCompany"><option value="all">全会社</option></select><input type="month" id="rewardMonth"></div></div>
+<div class="notice">報酬計算は、出勤記録がある日数 × 登録日当で試算しています。実際の支払いルール（固定給・歩合・控除・交通費など）は確認後に調整してください。</div>
+<div class="card"><div class="section-head"><h2>スタッフ別集計</h2><button class="btn small" onclick="exportCSV('rewards')">集計CSVを書き出す</button></div><div id="rewardsTable"></div></div>
+</section>
+
+<section id="page-data" class="hidden">
+<div class="topline"><div><h1>データ連携・バックアップ</h1><div class="sub">CSVで既存スプレッドシートとデータを受け渡す</div></div></div>
+<div class="grid two-col">
+<div class="card"><h2>データを書き出す</h2><p class="mini">この試作品に登録したスタッフ・出勤・売上・単価をCSVで保存できます。Googleスプレッドシートにインポートして確認できます。</p><div class="quick-actions"><button class="btn" onclick="exportCSV('staff')">スタッフCSV</button><button class="btn" onclick="exportCSV('attendance')">出勤CSV</button><button class="btn" onclick="exportCSV('sales')">売上CSV</button><button class="btn" onclick="exportCSV('rates')">単価CSV</button><button class="btn" onclick="exportJSON()">全データバックアップ</button></div></div>
+<div class="card"><h2>バックアップを読み込む</h2><p class="mini">以前にこの試作品から書き出したJSONバックアップを復元します。読み込みで現在のデータは置き換わります。</p><input type="file" id="jsonFile" accept=".json,application/json"><div class="form-actions"><button class="btn primary" onclick="importJSON()">バックアップを復元</button><button class="btn danger" onclick="resetDemo()">サンプル状態に戻す</button></div></div>
+</div>
+<div class="card" style="margin-top:14px"><h2>本番連携に必要なもの</h2><ul class="mini"><li>Google Apps Script またはサーバー側API</li><li>GoogleスプレッドシートのIDと対象タブ・列の対応表</li><li>ログイン認証、会社別アクセス制御、操作履歴</li><li>実際の単価・粗利・報酬ルールの確定</li></ul><p class="mini">このHTMLだけではGoogleシートに自動接続しません。自動連携を行うには、シートの構成確認とGoogle側の権限設定が必要です。</p></div>
+</section>
+<footer>ATLAS × MER 業務管理システム 試作品 — データはこのブラウザ内に保存されます</footer>
+</main></div>
+<script>
+const TYPES=['MNP','純新規','UG','sy機変','Tab','Air新規','Air機変','おうちのでんわ','PayPayカードゴールドのみ','でんき','セレクション(税抜)'];
+const COMPANIES=['ATLAS','MER'];
+const KEY='atlasMerPrototypeV02';
+const today=()=>new Date().toLocaleDateString('sv-SE');
+const monthNow=()=>today().slice(0,7);
+const yen=n=>'¥'+Math.round(Number(n)||0).toLocaleString('ja-JP');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const id=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+function seed(){return {companies:COMPANIES,staff:[
+{id:'s1',code:'AT-001',name:'デモスタッフA',company:'ATLAS',role:'company_admin',wage:12000,target:500000},
+{id:'s2',code:'ME-001',name:'デモスタッフB',company:'MER',role:'staff',wage:11000,target:400000}
+],attendance:[],sales:[],rates:[]}}
+let db;try{db=JSON.parse(localStorage.getItem(KEY))||seed()}catch(e){db=seed()}
+function save(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
+function options(arr,selected){return arr.map(v=>`<option value="${esc(v)}" ${String(v)===String(selected)?'selected':''}>${esc(v)}</option>`).join('')}
+function staffOptions(company,all=false){let xs=db.staff.filter(s=>!company||s.company===company);return (all?'<option value="*">全スタッフ（会社共通）</option>':'')+xs.map(s=>`<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('')}
+function fillSelect(el,html){let old=el.value;el.innerHTML=html;if([...el.options].some(o=>o.value===old))el.value=old}
+function populate(){
+ const companyOpts=options(db.companies,db.companies[0]);
+ ['attCompany','salesCompany','staffCompany','rateCompany'].forEach(x=>fillSelect(document.getElementById(x),companyOpts));
+ ['dashCompany','attFilterCompany','rewardCompany'].forEach(x=>fillSelect(document.getElementById(x),'<option value="all">全会社</option>'+options(db.companies,'__none__')));
+ fillSelect(document.getElementById('attStaff'),staffOptions(document.getElementById('attCompany').value));
+ fillSelect(document.getElementById('salesStaff'),staffOptions(document.getElementById('salesCompany').value));
+ fillSelect(document.getElementById('rateStaff'),staffOptions(document.getElementById('rateCompany').value,true));
+ ['salesType','rateType'].forEach(x=>fillSelect(document.getElementById(x),options(TYPES,TYPES[0])));
+}
+function refreshSalesStaff(){fillSelect(document.getElementById('salesStaff'),staffOptions(document.getElementById('salesCompany').value))}
+function refreshRateStaff(){fillSelect(document.getElementById('rateStaff'),staffOptions(document.getElementById('rateCompany').value,true))}
+function go(page){document.querySelectorAll('section[id^=page-]').forEach(s=>s.classList.add('hidden'));document.getElementById('page-'+page).classList.remove('hidden');document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.page===page));renderAll()}
+document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
+function byMonth(x,m){return (x.date||'').slice(0,7)===m}
+function companyMatch(x,c){return c==='all'||x.company===c}
+function saleTotal(sales){return sales.reduce((a,s)=>a+(Number(s.amount)||0),0)}
+function table(headers,rows){if(!rows.length)return '<div class="empty">データがありません</div>';return `<div class="table-wrap"><table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`}
+function renderDashboard(){
+ let c=document.getElementById('dashCompany').value,m=document.getElementById('dashMonth').value||monthNow();
+ let staff=db.staff.filter(s=>companyMatch(s,c)),att=db.attendance.filter(a=>companyMatch(a,c)&&byMonth(a,m)),sales=db.sales.filter(s=>companyMatch(s,c)&&byMonth(s,m));
+ document.getElementById('statStaff').textContent=staff.length;document.getElementById('statDays').textContent=att.length;document.getElementById('statSales').textContent=yen(saleTotal(sales));document.getElementById('statGross').textContent=yen(saleTotal(sales));
+ document.getElementById('companySummary').innerHTML=table(['会社','スタッフ','出勤記録','売上合計'],db.companies.map(co=>{let ss=db.staff.filter(s=>s.company===co),aa=db.attendance.filter(a=>a.company===co&&byMonth(a,m)),vv=db.sales.filter(s=>s.company===co&&byMonth(s,m));return `<tr><td><b>${esc(co)}</b></td><td>${ss.length}人</td><td>${aa.length}日</td><td class="num">${yen(saleTotal(vv))}</td></tr>`}));
+ document.getElementById('recentAttendance').innerHTML=table(['日付','会社 / スタッフ','状況'],db.attendance.slice().sort((a,b)=>(b.date+b.inTime).localeCompare(a.date+a.inTime)).slice(0,5).map(a=>`<tr><td>${esc(a.date)}</td><td>${esc(a.company)} / ${esc(staffName(a.staffId))}</td><td><span class="pill ${a.outTime?'off':'on'}">${a.outTime?'退勤済':'勤務中'}</span></td></tr>`));
+ document.getElementById('recentSales').innerHTML=table(['日付','会社 / スタッフ','契約','件数','金額'],db.sales.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8).map(s=>`<tr><td>${esc(s.date)}</td><td>${esc(s.company)} / ${esc(staffName(s.staffId))}</td><td>${esc(s.type)}</td><td class="num">${s.count}</td><td class="num">${yen(s.amount)}</td></tr>`));
+}
+function staffName(sid){return db.staff.find(s=>s.id===sid)?.name||'（削除済み）'}
+function clock(kind){
+ let company=document.getElementById('attCompany').value,staffId=document.getElementById('attStaff').value,date=document.getElementById('attDate').value||today(),memo=document.getElementById('attMemo').value;
+ if(!staffId)return alert('先にスタッフを登録してください');
+ let a=db.attendance.find(x=>x.staffId===staffId&&x.date===date);
+ if(kind==='in'){if(a){if(!confirm('この日付の出勤記録があります。出勤時刻を更新しますか？'))return;a.inTime=new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});a.memo=memo||a.memo}else db.attendance.push({id:id(),company,staffId,date,inTime:new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'}),outTime:'',memo})}
+ else {if(!a)return alert('先に出勤を記録してください');a.outTime=new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});a.memo=memo||a.memo}
+ save();alert(kind==='in'?'出勤を記録しました':'退勤を記録しました');
+}
+function renderAttendance(){
+ let c=document.getElementById('attFilterCompany').value,m=document.getElementById('attFilterMonth').value||monthNow();
+ let rows=db.attendance.filter(a=>companyMatch(a,c)&&byMonth(a,m)).slice().sort((a,b)=>b.date.localeCompare(a.date)).map(a=>`<tr><td>${esc(a.date)}</td><td>${esc(a.company)}</td><td>${esc(staffName(a.staffId))}</td><td>${esc(a.inTime||'—')}</td><td>${esc(a.outTime||'—')}</td><td><span class="pill ${a.outTime?'off':'on'}">${a.outTime?'退勤済':'勤務中'}</span></td><td>${esc(a.memo)}</td><td><button class="btn small danger" onclick="delRecord('attendance','${a.id}')">削除</button></td></tr>`);
+ document.getElementById('attendanceTable').innerHTML=table(['日付','会社','スタッフ','出勤','退勤','状態','メモ','操作'],rows)
+}
+function resolveRate(company,staffId,vendor,type){
+ let rates=db.rates.filter(r=>r.company===company&&r.type===type);
+ rates.sort((a,b)=>{let score=r=>(r.staffId!=='*'?2:0)+(r.vendor?1:0);return score(b)-score(a)});
+ let r=rates.find(r=>(r.staffId==='*'||r.staffId===staffId)&&(!r.vendor||r.vendor.trim().toLowerCase()===(vendor||'').trim().toLowerCase()));
+ return r?Number(r.amount):0
+}
+function applyRate(){let amount=resolveRate(document.getElementById('salesCompany').value,document.getElementById('salesStaff').value,document.getElementById('salesVendor').value,document.getElementById('salesType').value);document.getElementById('salesUnit').value=amount;calcSale()}
+function calcSale(){document.getElementById('salesAmount').value=yen((Number(document.getElementById('salesCount').value)||0)*(Number(document.getElementById('salesUnit').value)||0))}
+['salesCount','salesUnit'].forEach(x=>document.getElementById(x).addEventListener('input',calcSale));
+function addSale(){
+ let company=document.getElementById('salesCompany').value,staffId=document.getElementById('salesStaff').value,date=document.getElementById('salesDate').value||today(),vendor=document.getElementById('salesVendor').value,type=document.getElementById('salesType').value,count=Number(document.getElementById('salesCount').value),unit=Number(document.getElementById('salesUnit').value);
+ if(!staffId)return alert('先にスタッフを登録してください');if(count<0||unit<0)return alert('件数・単価は0以上にしてください');
+ db.sales.push({id:id(),company,staffId,date,vendor,type,count,unit,amount:count*unit,memo:document.getElementById('salesMemo').value});
+ document.getElementById('salesCount').value=1;document.getElementById('salesMemo').value='';save();alert('売上実績を登録しました');
+}
+function renderSales(){
+ let m=document.getElementById('salesFilterMonth').value||monthNow();
+ let rows=db.sales.filter(s=>byMonth(s,m)).slice().sort((a,b)=>b.date.localeCompare(a.date)).map(s=>`<tr><td>${esc(s.date)}</td><td>${esc(s.company)}</td><td>${esc(staffName(s.staffId))}</td><td>${esc(s.vendor||'—')}</td><td>${esc(s.type)}</td><td class="num">${s.count}</td><td class="num">${yen(s.unit)}</td><td class="num"><b>${yen(s.amount)}</b></td><td><button class="btn small danger" onclick="delRecord('sales','${s.id}')">削除</button></td></tr>`);
+ document.getElementById('salesTable').innerHTML=table(['日付','会社','スタッフ','販売先','契約種類','件数','単価','金額','操作'],rows)
+}
+function addStaff(){
+ let name=document.getElementById('staffName').value.trim();if(!name)return alert('氏名を入力してください');
+ db.staff.push({id:id(),code:document.getElementById('staffCode').value.trim(),name,company:document.getElementById('staffCompany').value,role:document.getElementById('staffRole').value,wage:Number(document.getElementById('staffWage').value)||0,target:Number(document.getElementById('staffTarget').value)||0});
+ document.getElementById('staffName').value='';document.getElementById('staffCode').value='';save();alert('スタッフを登録しました')
+}
+function renderStaff(){
+ let q=(document.getElementById('staffSearch').value||'').toLowerCase();
+ let rows=db.staff.filter(s=>s.name.toLowerCase().includes(q)||String(s.code).toLowerCase().includes(q)).map(s=>`<tr><td>${esc(s.code||'—')}</td><td><b>${esc(s.name)}</b></td><td>${esc(s.company)}</td><td>${({'staff':'スタッフ','company_admin':'会社管理者','super_admin':'最高管理者'})[s.role]||s.role}</td><td class="num">${yen(s.wage)}</td><td class="num">${yen(s.target)}</td><td><button class="btn small danger" onclick="delRecord('staff','${s.id}')">削除</button></td></tr>`);
+ document.getElementById('staffTable').innerHTML=table(['ID','氏名','会社','役割','日当','月間目標','操作'],rows)
+}
+function addRate(){
+ let company=document.getElementById('rateCompany').value,staffId=document.getElementById('rateStaff').value||'*',vendor=document.getElementById('rateVendor').value.trim(),type=document.getElementById('rateType').value,amount=Number(document.getElementById('rateAmount').value)||0;
+ let existing=db.rates.find(r=>r.company===company&&r.staffId===staffId&&r.vendor===vendor&&r.type===type);
+ if(existing)existing.amount=amount;else db.rates.push({id:id(),company,staffId,vendor,type,amount,start:document.getElementById('rateStart').value||''});
+ save();alert('単価ルールを保存しました')
+}
+function loadSampleRates(){
+ const sample=[['ATLAS','*','','MNP',10600],['ATLAS','*','','純新規',10600],['ATLAS','*','','UG',10600],['ATLAS','*','','sy機変',5200],['ATLAS','*','','Tab',5100],['ATLAS','*','','Air新規',11500],['ATLAS','*','','Air機変',4000],['ATLAS','*','','おうちのでんわ',2500]];
+ sample.forEach(x=>{let old=db.rates.find(r=>r.company===x[0]&&r.staffId===x[1]&&r.vendor===x[2]&&r.type===x[3]);if(old)old.amount=x[4];else db.rates.push({id:id(),company:x[0],staffId:x[1],vendor:x[2],type:x[3],amount:x[4],start:''})});save();alert('スクリーンショットから確認できた一部の仮単価を登録しました。実際の単価と照合してください。')
+}
+function renderRates(){
+ let rows=db.rates.map(r=>`<tr><td>${esc(r.company)}</td><td>${r.staffId==='*'?'全スタッフ':esc(staffName(r.staffId))}</td><td>${esc(r.vendor||'全販売先')}</td><td>${esc(r.type)}</td><td class="num">${yen(r.amount)}</td><td>${esc(r.start||'—')}</td><td><button class="btn small danger" onclick="delRecord('rates','${r.id}')">削除</button></td></tr>`);
+ document.getElementById('ratesTable').innerHTML=table(['会社','対象スタッフ','販売先','契約種類','単価','適用開始日','操作'],rows)
+}
+function renderRewards(){
+ let c=document.getElementById('rewardCompany').value,m=document.getElementById('rewardMonth').value||monthNow();
+ let staff=db.staff.filter(s=>companyMatch(s,c));
+ let rows=staff.map(s=>{let days=db.attendance.filter(a=>a.staffId===s.id&&byMonth(a,m)).length,ss=db.sales.filter(a=>a.staffId===s.id&&byMonth(a,m)),sales=saleTotal(ss),reward=days*Number(s.wage||0);return `<tr><td>${esc(s.company)}</td><td>${esc(s.name)}</td><td class="num">${days}</td><td class="num">${yen(sales)}</td><td class="num">${yen(s.target)}</td><td><div>${s.target?Math.round(sales/s.target*100):0}%</div><div class="progress"><div style="width:${Math.min(100,s.target?sales/s.target*100:0)}%"></div></div></td><td class="num">${yen(reward)}</td></tr>`});
+ document.getElementById('rewardsTable').innerHTML=table(['会社','スタッフ','出勤日数','売上合計','目標','達成率','日当概算'],rows)
+}
+function delRecord(kind,recordId){if(!confirm('このデータを削除しますか？'))return;db[kind]=db[kind].filter(x=>x.id!==recordId);save()}
+function csvCell(v){let s=String(v??'');return '"'+s.replace(/"/g,'""')+'"'}
+function download(name,content,type){let blob=new Blob(['\ufeff'+content],{type});let url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function exportCSV(kind){
+ let data=[],headers=[];
+ if(kind==='staff'){headers=['id','code','name','company','role','daily_wage','monthly_target'];data=db.staff.map(s=>[s.id,s.code,s.name,s.company,s.role,s.wage,s.target])}
+ if(kind==='attendance'){headers=['id','date','company','staff','clock_in','clock_out','memo'];data=db.attendance.map(a=>[a.id,a.date,a.company,staffName(a.staffId),a.inTime,a.outTime,a.memo])}
+ if(kind==='sales'){headers=['id','date','company','staff','vendor','contract_type','count','unit_price','amount','memo'];data=db.sales.map(s=>[s.id,s.date,s.company,staffName(s.staffId),s.vendor,s.type,s.count,s.unit,s.amount,s.memo])}
+ if(kind==='rates'){headers=['id','company','staff_id','vendor','contract_type','unit_price','start_date'];data=db.rates.map(r=>[r.id,r.company,r.staffId==='*'?'*':staffName(r.staffId),r.vendor,r.type,r.amount,r.start])}
+ if(kind==='rewards'){headers=['company','staff','month','attendance_days','sales_total','daily_wage_estimate'];let m=document.getElementById('rewardMonth').value||monthNow(),c=document.getElementById('rewardCompany').value;data=db.staff.filter(s=>companyMatch(s,c)).map(s=>[s.company,s.name,m,db.attendance.filter(a=>a.staffId===s.id&&byMonth(a,m)).length,saleTotal(db.sales.filter(a=>a.staffId===s.id&&byMonth(a,m))),db.attendance.filter(a=>a.staffId===s.id&&byMonth(a,m)).length*s.wage])}
+ download('atlas_mer_'+kind+'_'+today()+'.csv',[headers,...data].map(row=>row.map(csvCell).join(',')).join('\r\n'),'text/csv;charset=utf-8')
+}
+function exportJSON(){download('atlas_mer_backup_'+today()+'.json',JSON.stringify(db,null,2),'application/json')}
+function importJSON(){
+ let f=document.getElementById('jsonFile').files[0];if(!f)return alert('JSONファイルを選択してください');
+ let reader=new FileReader();reader.onload=()=>{try{let x=JSON.parse(reader.result);if(!x.staff||!x.sales||!x.attendance||!x.rates)throw Error();if(!confirm('現在のデータを読み込んだデータで置き換えますか？'))return;db=x;save();alert('復元しました')}catch(e){alert('このシステムのJSONバックアップではないか、ファイルが壊れています')}};reader.readAsText(f)
+}
+function resetDemo(){if(!confirm('登録したデータをすべて消してサンプル状態に戻しますか？'))return;db=seed();save()}
+function renderAll(){populate();renderDashboard();renderAttendance();renderSales();renderStaff();renderRates();renderRewards()}
+document.getElementById('todayBadge').textContent=today();
+['dashMonth','attFilterMonth','salesFilterMonth','rewardMonth'].forEach(x=>document.getElementById(x).value=monthNow());
+['attDate','salesDate','rateStart'].forEach(x=>document.getElementById(x).value=today());
+['dashCompany','dashMonth','attFilterCompany','attFilterMonth','salesFilterMonth','rewardCompany','rewardMonth','attCompany','salesCompany','rateCompany'].forEach(x=>document.getElementById(x).addEventListener('change',()=>{if(x==='attCompany')fillSelect(document.getElementById('attStaff'),staffOptions(document.getElementById('attCompany').value));if(x==='salesCompany')refreshSalesStaff();if(x==='rateCompany')refreshRateStaff();renderAll()}));
+document.getElementById('rateCompany').addEventListener('change',refreshRateStaff);
+renderAll();calcSale();
+</script>
+</body>
+</html>
