@@ -462,7 +462,7 @@ async function loginUser(){
 }
 
 function showLoggedInUser(user){
-
+loadProfile(user);
   const header =
     document.querySelector('.header-right');
 
@@ -538,7 +538,29 @@ supabaseClient.auth.onAuthStateChange(
   }
 );
 
-checkLogin();
+async function loadProfile(user){
+
+  const { data, error } = await supabaseClient
+    .from('profiles')
+    .select('name, company, role')
+    .eq('id', user.id)
+    .single();
+
+  if(error){
+    console.error('プロフィール取得エラー:', error);
+    return;
+  }
+
+  console.log('プロフィール:', data);
+
+  const badge = document.getElementById('loginUserBadge');
+
+  if(badge && data){
+    badge.textContent =
+      `${data.name || user.email} / ${data.company || ''} / ${data.role || ''}`;
+  }
+}
+  checkLogin();
 </script>
 </body>
 </html>
