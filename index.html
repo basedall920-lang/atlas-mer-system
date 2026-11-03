@@ -31,8 +31,132 @@ footer{text-align:center;color:#8490a2;font-size:11px;padding:18px}
 @media(max-width:900px){.app{grid-template-columns:1fr}aside{display:flex;gap:5px;overflow:auto;padding:8px;border-right:0;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}.navbtn{white-space:nowrap;width:auto;margin:0;padding:10px}.navbtn span{width:auto;margin-right:5px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.two-col{grid-template-columns:1fr}main{padding:15px}}
 @media(max-width:560px){header{padding:14px}.brand{font-size:17px}main{padding:12px}h1{font-size:22px}.stats{gap:9px}.card{padding:13px}.stat-value{font-size:22px}.formgrid{grid-template-columns:1fr 1fr}.formgrid .field:last-child{grid-column:auto}.controls>*{flex:1}.header-right{width:100%}}
 </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+#loginScreen{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:#f4f6fa;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.login-card{
+  width:100%;
+  max-width:420px;
+  background:#fff;
+  border:1px solid #dce3ed;
+  border-radius:18px;
+  padding:28px;
+  box-shadow:0 12px 35px rgba(23,61,112,.12);
+}
+
+.login-logo{
+  font-size:26px;
+  font-weight:800;
+  color:#173d70;
+  margin-bottom:4px;
+}
+
+.login-sub{
+  color:#667085;
+  font-size:13px;
+  margin-bottom:25px;
+}
+
+.login-field{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  margin-bottom:15px;
+  font-size:13px;
+  font-weight:700;
+  color:#526176;
+}
+
+.login-field input{
+  width:100%;
+  padding:12px;
+}
+
+.login-button{
+  width:100%;
+  border:0;
+  border-radius:9px;
+  padding:12px;
+  background:#2f67ad;
+  color:#fff;
+  font-weight:700;
+  font-size:15px;
+}
+
+#loginError{
+  color:#c64747;
+  font-size:12px;
+  margin-top:12px;
+  line-height:1.5;
+}
+
+.logout-btn{
+  background:#ffffff20;
+  border:1px solid #ffffff40;
+  color:#fff;
+  border-radius:999px;
+  padding:7px 11px;
+  cursor:pointer;
+  font-size:12px;
+}
+</style>
 </head>
 <body>
+
+<div id="loginScreen">
+  <div class="login-card">
+
+    <div class="login-logo">
+      ATLAS × MER
+    </div>
+
+    <div class="login-sub">
+      業務管理システム
+    </div>
+
+    <label class="login-field">
+      メールアドレス
+      <input
+        type="email"
+        id="loginEmail"
+        placeholder="example@email.com"
+        autocomplete="email"
+      >
+    </label>
+
+    <label class="login-field">
+      パスワード
+      <input
+        type="password"
+        id="loginPassword"
+        placeholder="パスワード"
+        autocomplete="current-password"
+      >
+    </label>
+
+    <button
+      class="login-button"
+      onclick="loginUser()"
+    >
+      ログイン
+    </button>
+
+    <div id="loginError"></div>
+
+  </div>
+</div>
+
 <header>
   <div class="brand">ATLAS × MER <small>WORKFORCE & SALES MANAGEMENT</small></div>
   <div class="header-right"><span class="badge">プロトタイプ v0.2</span><span class="badge" id="todayBadge"></span></div>
@@ -265,6 +389,156 @@ document.getElementById('todayBadge').textContent=today();
 ['dashCompany','dashMonth','attFilterCompany','attFilterMonth','salesFilterMonth','rewardCompany','rewardMonth','attCompany','salesCompany','rateCompany'].forEach(x=>document.getElementById(x).addEventListener('change',()=>{if(x==='attCompany')fillSelect(document.getElementById('attStaff'),staffOptions(document.getElementById('attCompany').value));if(x==='salesCompany')refreshSalesStaff();if(x==='rateCompany')refreshRateStaff();renderAll()}));
 document.getElementById('rateCompany').addEventListener('change',refreshRateStaff);
 renderAll();calcSale();
+  const SUPABASE_URL =
+  'https://naosayhljhiunndfnjjb.supabase.co';
+
+const SUPABASE_PUBLISHABLE_KEY =
+  'sb_publishable_qsBs-YC1mghNeog1uaUQYw_DDptFLuf';
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+async function checkLogin(){
+
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  if(session){
+    document
+      .getElementById('loginScreen')
+      .classList.add('hidden');
+
+    showLoggedInUser(session.user);
+  }else{
+    document
+      .getElementById('loginScreen')
+      .classList.remove('hidden');
+  }
+}
+
+async function loginUser(){
+
+  const email =
+    document.getElementById('loginEmail').value.trim();
+
+  const password =
+    document.getElementById('loginPassword').value;
+
+  const errorBox =
+    document.getElementById('loginError');
+
+  errorBox.textContent = '';
+
+  if(!email || !password){
+    errorBox.textContent =
+      'メールアドレスとパスワードを入力してください。';
+    return;
+  }
+
+  const { data, error } =
+    await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+  if(error){
+    console.error(error);
+
+    errorBox.textContent =
+      'ログインできませんでした。メールアドレスまたはパスワードを確認してください。';
+
+    return;
+  }
+
+  document
+    .getElementById('loginScreen')
+    .classList.add('hidden');
+
+  showLoggedInUser(data.user);
+}
+
+function showLoggedInUser(user){
+
+  const header =
+    document.querySelector('.header-right');
+
+  let userBadge =
+    document.getElementById('loginUserBadge');
+
+  if(!userBadge){
+
+    userBadge = document.createElement('span');
+
+    userBadge.id = 'loginUserBadge';
+    userBadge.className = 'badge';
+
+    header.appendChild(userBadge);
+  }
+
+  userBadge.textContent =
+    user.email || 'ログイン中';
+
+
+  if(!document.getElementById('logoutButton')){
+
+    const button =
+      document.createElement('button');
+
+    button.id = 'logoutButton';
+    button.className = 'logout-btn';
+    button.textContent = 'ログアウト';
+    button.onclick = logoutUser;
+
+    header.appendChild(button);
+  }
+}
+
+async function logoutUser(){
+
+  await supabaseClient.auth.signOut();
+
+  document
+    .getElementById('loginScreen')
+    .classList.remove('hidden');
+
+  const badge =
+    document.getElementById('loginUserBadge');
+
+  const button =
+    document.getElementById('logoutButton');
+
+  if(badge) badge.remove();
+  if(button) button.remove();
+
+  document.getElementById('loginPassword').value = '';
+}
+
+supabaseClient.auth.onAuthStateChange(
+  (event, session) => {
+
+    if(session){
+
+      document
+        .getElementById('loginScreen')
+        .classList.add('hidden');
+
+      showLoggedInUser(session.user);
+
+    }else{
+
+      document
+        .getElementById('loginScreen')
+        .classList.remove('hidden');
+
+    }
+  }
+);
+
+checkLogin();
 </script>
 </body>
 </html>
